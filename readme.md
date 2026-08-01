@@ -35,8 +35,8 @@ Generated answer (with source citations)
 Displayed alongside the raw retrieved chunks
 ```
 
-**Tech used:** Streamlit · ChromaDB · sentence-transformers (all-MiniLM-L6-v2) · Gemini 2.5
-Flash (free tier) · LangChain (PDF loading & chunking)
+**Tech used:** Streamlit · ChromaDB · sentence-transformers (all-MiniLM-L6-v2) · Gemini
+Flash (free tier, `gemini-flash-latest`) · LangChain (PDF loading & chunking)
 
 ---
 
@@ -72,10 +72,17 @@ Flash (free tier) · LangChain (PDF loading & chunking)
 ## Demo Q&A
 
 **Q1: How do I fill missing values in a DataFrame?**
-> Answer (from `missing_data.pdf`): You can use `fillna()` to replace NA values with a
-> scalar, or use `ffill()` / `bfill()` to propagate the last valid value forward or
-> backward. For more advanced cases, `interpolate()` supports linear, polynomial, and
-> spline-based filling. *[Source: missing_data.pdf]*
+> **Answer:** Based on the provided documents, you can fill missing values in a DataFrame
+> using the following methods:
+> - `fillna()`: Replaces NA values with non-NA data, such as a scalar value [Source 2]
+> - `DataFrame.combine_first()`: Updates missing values in one DataFrame with the
+>   non-missing values from another DataFrame at the corresponding location [Source 5]
+> - Arithmetic functions with `fill_value`: Arithmetic functions on DataFrames have a
+>   `fill_value` option to substitute a specified value when at most one value at a
+>   location is missing [Source 1]
+>
+> *Sources: `basics.pdf` (p.12), `merging.pdf` (p.12, p.8), `basics.pdf` (p.63),
+> `missing_data.pdf` (p.32)*
 
 **Q2: What's the difference between merge and concat in pandas?**
 > Answer (from `merging.pdf`): `concat()` stacks Series/DataFrame objects along an axis
@@ -105,5 +112,5 @@ coherent context windows than smaller, non-overlapping chunks did in early testi
 
 ## Live Demo / Repo
 
-- **Live URL:** _add your Streamlit Cloud link here after deploying_
-- **GitHub repo:** _add your repo URL here_
+- **Live URL:** https://domain-specific-rag-chatbot-6s4qcvnxuh793xycj27juu.streamlit.app/
+- **GitHub repo:** https://github.com/sinchanasacharya2006-cloud/domain-specific-rag-chatbot
