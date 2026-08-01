@@ -38,13 +38,44 @@ if GEMINI_API_KEY:
     model = genai.GenerativeModel("gemini-flash-latest")
 
 # ---------------------------------------------------------
-# Connect to ChromaDB
+# Connect to ChromaDB (auto-build from data/ if not present yet)
 # ---------------------------------------------------------
 @st.cache_resource
 def load_collection():
     client = chromadb.PersistentClient(path="chroma_db")
     embedding_function = SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
-    return client.get_collection(name="rag_collection", embedding_function=embedding_function)
+
+    try:
+        collection = client.get_collection(name="rag_collection", embedding_function=embedding_function)
+        if collection.count() > 0:
+            return collection
+    except Exception:
+        pass
+
+    # Collection doesn't exist yet (e.g. first run on a fresh deployment) - build it now
+    from langchain_community.document_loaders import PyPDFLoader
+    from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+    with st.spinner("First-time setup: building the vector database from source PDFs... this can take a minute."):
+        documents = []
+        pdf_folder = "data"
+        for file in os.listdir(pdf_folder):
+            if file.endswith(".pdf"):
+                loader = PyPDFLoader(os.path.join(pdf_folder, file))
+                documents.extend(loader.load())
+
+        splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
+        chunks = splitter.split_documents(documents)
+
+        collection = client.get_or_create_collection(name="rag_collection", embedding_function=embedding_function)
+        for i, chunk in enumerate(chunks):
+            collection.add(
+                ids=[str(i)],
+                documents=[chunk.page_content],
+                metadatas=[chunk.metadata],
+            )
+
+    return collection
 
 collection = load_collection()
 
